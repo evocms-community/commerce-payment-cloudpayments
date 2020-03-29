@@ -72,10 +72,11 @@ class CloudPaymentsPayment extends Payment implements \Commerce\Interfaces\Payme
         $items = $this->prepareItems($processor->getCart());
         $vat   = $this->getSetting('vat');
 
+        $originalAmount   = $currency->convert($payment['amount'], $currencyCode, $order['currency']);
         $isPartialPayment = $payment['amount'] < $order['amount'];
 
         if ($isPartialPayment) {
-            $items = $this->decreaseItemsAmount($items, $order['amount'], $payment['amount']);
+            $items = $this->decreaseItemsAmount($items, $order['amount'], $originalAmount);
         }
 
         $products = [];
@@ -83,9 +84,9 @@ class CloudPaymentsPayment extends Payment implements \Commerce\Interfaces\Payme
         foreach ($items as $i => $item) {
             $products[] = [
                 'label'           => $item['name'],
-                'price'           => $item['price'],
+                'price'           => $currency->convert($item['price'], $order['currency'], $currencyCode),
                 'quantity'        => $item['count'],
-                'amount'          => $item['total'],
+                'amount'          => $currency->convert($item['total'], $order['currency'], $currencyCode),
                 'measurementUnit' => isset($item['meta']['measurements']) ? $item['meta']['measurements'] : $this->lang['measures.units'],
                 'method'          => 0,
                 'object'          => 0,
@@ -149,7 +150,16 @@ class CloudPaymentsPayment extends Payment implements \Commerce\Interfaces\Payme
 
         if (!empty($json->paymentId)) {
             try {
-                $this->modx->commerce->loadProcessor()->processPayment($json->paymentId, floatval($data['Amount']));
+                $processor = $this->modx->commerce->loadProcessor();
+                $order = $processor->loadOrder($data['InvoiceId']);
+
+                $currencyCode = $this->getSetting('currency');
+                if (empty($currencyCode)) {
+                    $currencyCode = $order['currency'];
+                }
+
+                $amount = ci()->currency->convert($data['Amount'], $currencyCode, $order['currency']);
+                $processor->processPayment($json->paymentId, $amount);
             } catch (Exception $e) {
                 $this->modx->logEvent(0, 3, 'Payment processing failed: ' . $e->getMessage(), 'Commerce CloudPayments');
                 return false;
