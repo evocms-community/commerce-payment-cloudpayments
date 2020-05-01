@@ -2,3 +2,5 @@
 https://cloudpayments.ru/
 
 https://developers.cloudpayments.ru/
+
+#### Спонсор разработки - inview production
