@@ -45,8 +45,8 @@ class CloudPaymentsPayment extends Payment implements \Commerce\Interfaces\Payme
             'currency'    => $currencyCode,
             'invoiceId'   => $order['id'],
             'skin'        => $this->getSetting('skin'),
-            'onSuccess'   => $this->modx->getConfig('site_url') . 'commerce/paypal/payment-success?paymentHash=' . $payment['hash'],
-            'onFail'      => $this->modx->getConfig('site_url') . 'commerce/paypal/payment-failed',
+            'onSuccess'   => $this->modx->getConfig('site_url') . 'commerce/cloudpayments/payment-success?paymentHash=' . $payment['hash'],
+            'onFail'      => $this->modx->getConfig('site_url') . 'commerce/cloudpayments/payment-failed',
             'description' => ci()->tpl->parseChunk($this->lang['payments.payment_description'], [
                 'order_id'  => $order['id'],
                 'site_name' => $this->modx->getConfig('site_name'),
