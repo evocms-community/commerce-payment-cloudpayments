@@ -41,7 +41,7 @@ class CloudPaymentsPayment extends Payment implements \Commerce\Interfaces\Payme
 
         $charge = [
             'publicId'    => $this->getSetting('public_id'),
-            'amount'      => $payment['amount'],
+            'amount'      => (float)$payment['amount'],
             'currency'    => $currencyCode,
             'invoiceId'   => $order['id'],
             'skin'        => $this->getSetting('skin'),
@@ -84,9 +84,9 @@ class CloudPaymentsPayment extends Payment implements \Commerce\Interfaces\Payme
         foreach ($items as $i => $item) {
             $products[] = [
                 'label'           => $item['name'],
-                'price'           => $currency->convert($item['price'], $order['currency'], $currencyCode),
-                'quantity'        => $item['count'],
-                'amount'          => $currency->convert($item['total'], $order['currency'], $currencyCode),
+                'price'           => (float)$currency->convert($item['price'], $order['currency'], $currencyCode),
+                'quantity'        => (float)$item['count'],
+                'amount'          => (float)$currency->convert($item['total'], $order['currency'], $currencyCode),
                 'measurementUnit' => isset($item['meta']['measurements']) ? $item['meta']['measurements'] : $this->lang['measures.units'],
                 'method'          => 0,
                 'object'          => 0,
